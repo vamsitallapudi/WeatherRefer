@@ -6,17 +6,39 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import com.coderefer.weatherrefer.R
+import com.coderefer.weatherrefer.data.Result
 
 class HomeFragment : Fragment(), View.OnClickListener {
+    private lateinit var viewModel: HomeViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val v = inflater.inflate(R.layout.fragment_home, container, false)
+        viewModel = (activity as HomeActivity).obtainViewModel()
+        fetchWeather()
+        observeWeatherLiveData()
+        return v
+    }
+
+    private fun observeWeatherLiveData() {
+        viewModel.weatherLiveData.observe(viewLifecycleOwner, Observer {
+            when(it) {
+                is Result.Success -> {
+                    Toast.makeText(activity, it.data.toString(), Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+    }
+
+    private fun fetchWeather() {
+       viewModel.fetchWeather()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
